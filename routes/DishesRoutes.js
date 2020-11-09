@@ -5,7 +5,7 @@ import {
   getOneDish,
   postNewDish,
   updateDish,
-} from '../controllers/DishesControllers.js'
+} from '../controllers/dishesControllers.js'
 
 const router = express.Router()
 
