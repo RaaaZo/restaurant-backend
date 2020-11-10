@@ -5,7 +5,16 @@ import Dish from '../models/Dish.js'
 //@route   GET /api/dishes
 //@access  Public
 export const getAllDishes = asyncHandler(async (req, res, next) => {
-  const dishes = await Dish.find({})
+  const dishes = await Dish.find()
+
+  res.json({ success: true, data: dishes })
+})
+
+//@desc    Fetch dishes by type
+//@route   GET /api/dishes
+//@access  Public
+export const getDishesByType = asyncHandler(async (req, res, next) => {
+  const dishes = await Dish.find(req.query)
 
   res.json({ success: true, data: dishes })
 })
@@ -28,7 +37,7 @@ export const getOneDish = asyncHandler(async (req, res, next) => {
 //@route   POST /api/dishes
 //@access  Private
 export const postNewDish = asyncHandler(async (req, res, next) => {
-  const { name, description, ingredients, price } = req.body
+  const { name, description, ingredients, price, type, image } = req.body
 
   const dishExists = await Dish.findOne({ name })
 
@@ -42,16 +51,14 @@ export const postNewDish = asyncHandler(async (req, res, next) => {
     description,
     ingredients,
     price,
+    type,
+    image,
   })
 
   if (newDish) {
     res.status(201).json({
       success: true,
-      _id: newDish._id,
-      name: newDish.name,
-      description: newDish.description,
-      ingredients: newDish.ingredients,
-      price: newDish.price,
+      data: newDish,
     })
   } else {
     res.status(400)

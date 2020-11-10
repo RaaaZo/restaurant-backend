@@ -12,6 +12,10 @@ const dishSchema = mongoose.Schema({
     minlength: 30,
     maxlength: 200,
   },
+  image: {
+    type: String,
+    required: true,
+  },
   ingredients: {
     type: String,
     required: true,
@@ -19,6 +23,11 @@ const dishSchema = mongoose.Schema({
   },
   price: {
     type: Number,
+    required: true,
+  },
+  type: {
+    type: String,
+    enum: ['appetizer', 'dessert', 'mainCourse', 'salad', 'soup'],
     required: true,
   },
 })

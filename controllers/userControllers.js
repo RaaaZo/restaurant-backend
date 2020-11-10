@@ -5,7 +5,7 @@ import User from '../models/User.js'
 //@route   GET /api/users
 //@access  Public
 export const getUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.params.id)
+  const user = await User.findById(req.params.id, '-password')
 
   if (user) {
     res.status(200).json({ success: true, data: user })
@@ -77,6 +77,7 @@ export const updateUser = asyncHandler(async (req, res, next) => {
     const updatedUser = await user.save()
 
     res.status(200).json({
+      success: true,
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
