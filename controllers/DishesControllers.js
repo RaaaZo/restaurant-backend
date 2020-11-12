@@ -16,6 +16,11 @@ export const getAllDishes = asyncHandler(async (req, res, next) => {
 export const getDishesByType = asyncHandler(async (req, res, next) => {
   const dishes = await Dish.find(req.query)
 
+  if (dishes.length === 0) {
+    res.status(404)
+    throw new Error('Nie znaleziono żadnych dań')
+  }
+
   res.json({ success: true, data: dishes })
 })
 
