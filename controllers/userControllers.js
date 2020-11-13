@@ -54,11 +54,11 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     throw new Error(`Hasła nie pasują`)
   }
 
-  const userExists = await User.findOne({ username })
+  const userExists = await User.findOne({ email })
 
   if (userExists) {
     res.status(400)
-    throw new Error(`Użytkownik o takiej nazwie istnieje`)
+    throw new Error(`E-mail jest już zajęty`)
   }
 
   const user = await User.create({
@@ -85,35 +85,23 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 //@route   PUT /api/users/:id
 //@access  Private
 export const updateUser = asyncHandler(async (req, res, next) => {
-  const { username, email, password, confirmPassword } = req.body
-  const user = await User.findById(req.params.id)
+  const user = await User.findById(req.user._id)
 
-  if (password !== confirmPassword) {
-    res.status(400)
-    throw new Error(`Podane hasła są różne`)
-  }
-
-  if (!user) {
-    res.status(404)
-    throw new Error(`Użytkownik o takiej nazwie nie istnieje`)
-  }
-
-  if (user) {
-    user.username = username || user.username
-    user.email = email || user.email
-    user.password = password || user.password
+  if (user && (await user.matchPassword(req.body.password))) {
+    user.username = req.body.username || user.username
+    user.email = req.body.email || user.email
 
     const updatedUser = await user.save()
 
-    res.status(200).json({
-      success: true,
+    res.json({
       _id: updatedUser._id,
-      name: updatedUser.name,
+      username: updatedUser.username,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
+      token: generateToken(updatedUser._id),
     })
   } else {
-    res.status(400)
-    throw new Error(`Podano błędne dane`)
+    res.status(404)
+    throw new Error('Wprowadź poprawne dane aby zaktualizować profil')
   }
 })
