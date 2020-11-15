@@ -28,7 +28,10 @@ export const authUser = asyncHandler(async (req, res, next) => {
 //@route   GET /api/users
 //@access  Private
 export const getUserProfile = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user._id)
+  const user = await User.findById(req.user._id).populate(
+    'orders',
+    'orderItems'
+  )
 
   if (user) {
     res.status(200).json({
@@ -36,6 +39,7 @@ export const getUserProfile = asyncHandler(async (req, res, next) => {
       username: user.username,
       email: user.email,
       isAdmin: user.isAdmin,
+      orders: user.orders,
     })
   } else {
     res.status(401)

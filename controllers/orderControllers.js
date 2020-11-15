@@ -1,16 +1,22 @@
 import asyncHandler from 'express-async-handler'
 import Order from '../models/Order.js'
 import User from '../models/User.js'
+import mongoose from 'mongoose'
 
 //@desc    Create new order
 //@route   POST /api/orders
 //@access  Private
 export const addOrderItems = asyncHandler(async (req, res, next) => {
-  const { orderItems, shippingAddress, paymentMethod, userId } = req.body
+  const {
+    orderItems,
+    shippingAddress,
+    paymentMethod,
+    userId,
+  } = req.body.orderItems
 
-  const userExists = await User.findById(userId)
+  const user = await User.findById(userId)
 
-  if (!userExists) {
+  if (!user) {
     res.status(404)
     throw new Error('Nie znaleziono takiego użytkownika')
   }
@@ -26,6 +32,15 @@ export const addOrderItems = asyncHandler(async (req, res, next) => {
       user: userId,
     })
 
+    const session = await mongoose.startSession()
+
+    session.startTransaction()
+    await order.save({ session: session })
+    user.orders.push(order)
+
+    await user.save({ session: session })
+    await session.commitTransaction()
+
     const createdOrder = await order.save()
 
     res.status(201).json({ success: true, data: createdOrder })
@@ -39,15 +54,14 @@ export const getOrder = asyncHandler(async (req, res, next) => {
   const { id } = req.params
 
   //   Nested populate
-  const order = await Order.findById(id)
-    .populate('user', 'username email')
-    .populate({
-      path: 'orderItems',
-      populate: {
-        path: 'dish',
-        model: 'Dish',
-      },
-    })
+  const order = await Order.findById(id).populate('user', 'username email')
+  // .populate({
+  //   path: 'orderItems',
+  //   populate: {
+  //     path: 'dish',
+  //     model: 'Dish',
+  //   },
+  // })
 
   if (order) {
     res.status(200).json({ success: true, data: order })

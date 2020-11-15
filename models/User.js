@@ -6,6 +6,12 @@ const userSchema = mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
   isAdmin: { type: Boolean, required: true, default: false },
+  orders: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Order',
+    },
+  ],
 })
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
