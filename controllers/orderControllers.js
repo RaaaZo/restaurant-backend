@@ -64,7 +64,7 @@ export const getOrder = asyncHandler(async (req, res, next) => {
   // })
 
   if (order) {
-    res.status(200).json({ success: true, data: order })
+    res.status(200).json({ data: order })
   } else {
     res.status(404)
     throw new Error('Nie znaleziono takiego zamówienia')
